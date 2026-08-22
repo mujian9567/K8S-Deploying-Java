@@ -100,25 +100,38 @@ class JenkinsAgentConfigurationTest {
         assertEquals("Unconfined", map(security.get("appArmorProfile")).get("type"));
         assertEquals(List.of("SETUID", "SETGID"), map(security.get("capabilities")).get("add"));
         assertEquals(List.of("ALL"), map(security.get("capabilities")).get("drop"));
-        assertTrue(hasEnvironment(buildkit, "HTTP_PROXY"));
-        assertTrue(hasEnvironment(buildkit, "HTTPS_PROXY"));
-        assertTrue(hasEnvironment(buildkit, "NO_PROXY"));
+        assertFalse(hasEnvironment(buildkit, "HTTP_PROXY"));
+        assertFalse(hasEnvironment(buildkit, "HTTPS_PROXY"));
+        assertFalse(hasEnvironment(buildkit, "NO_PROXY"));
+        assertEquals(
+                "/etc/buildkit/certs/ca-certificates.crt",
+                environment(buildkit, "SSL_CERT_FILE")
+        );
+        assertEquals("/etc/buildkit/certs", mountPath(buildkit, "buildkit-registry-config"));
+        assertEquals(
+                "buildkit-registry-config",
+                map(volume("buildkit-registry-config").get("configMap")).get("name")
+        );
+        JsonNode variables = readConfiguration().path("variables");
         String flags = environment(buildkit, "BUILDKITD_FLAGS");
-        assertTrue(flags.contains("${BUILDKITD_FLAGS}"));
-        assertTrue(flags.contains("--root ${BUILDKIT_STATE_DIR}"));
+        assertTrue(flags.contains(variables.path("BUILDKITD_FLAGS").asText()));
+        assertTrue(flags.contains("--root " + variables.path("BUILDKIT_STATE_DIR").asText()));
     }
 
     @Test
-    void routesJnlpSourceCheckoutThroughTheBuildProxy() {
+    void runsTheAgentOnTheHomeBuildNodeWithoutAJnlpProxy() {
         List<String> names = containers().stream()
                 .map(container -> container.get("name").toString())
                 .toList();
         assertEquals(List.of("jnlp", "maven", "buildkit", "helm"), names);
 
+        Map<String, Object> spec = map(pod.get("spec"));
+        assertEquals("home-k8s-gpu", map(spec.get("nodeSelector")).get("kubernetes.io/hostname"));
+
         Map<String, Object> jnlp = container("jnlp");
         assertTrue(jnlp.get("image").toString().contains("@sha256:"));
         assertEquals("/home/jenkins/agent", jnlp.get("workingDir"));
-        assertEquals("build-proxy", environmentConfigMap(jnlp));
+        assertFalse(jnlp.containsKey("envFrom"));
     }
 
     private void assertRestrictedContainer(Map<String, Object> container) {
@@ -160,13 +173,6 @@ class JenkinsAgentConfigurationTest {
     private boolean hasEnvironment(Map<String, Object> container, String name) {
         return maps(container.get("env")).stream()
                 .anyMatch(entry -> name.equals(entry.get("name")));
-    }
-
-    private String environmentConfigMap(Map<String, Object> container) {
-        return maps(container.get("envFrom")).stream()
-                .map(entry -> map(entry.get("configMapRef")).get("name").toString())
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Missing environment ConfigMap"));
     }
 
     private boolean hasVolumeMount(Map<String, Object> container, String name) {

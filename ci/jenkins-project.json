@@ -33,7 +33,8 @@
     "HELM_OVERRIDE_VALUES_FILE": ".jenkins-json-build/deploy-overrides-values.yaml",
     "HELM_OVERRIDE_PREPARE_SCRIPT": "ci/prepare-helm-values.sh",
     "BUILD_PROXY_CONFIG_MAP": "build-proxy",
-    "BUILDKITD_FLAGS": "--oci-worker-no-process-sandbox --config=/etc/buildkit/certs/buildkitd.toml"
+    "BUILDKITD_FLAGS": "--oci-worker-no-process-sandbox --config=/etc/buildkit/certs/buildkitd.toml",
+    "DEPLOY_BRANCH": "home-lab"
   },
   "agent": {
     "type": "kubernetes",

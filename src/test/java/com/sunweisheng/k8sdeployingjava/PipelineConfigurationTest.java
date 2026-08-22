@@ -19,9 +19,11 @@ class PipelineConfigurationTest {
     private final JsonNode configuration = readConfiguration();
 
     @Test
-    void restrictsImagePublishingAndDeploymentToMain() {
-        assertMainBranchCondition(stage("image"));
-        assertMainBranchCondition(stage("deploy"));
+    void restrictsImagePublishingAndDeploymentToConfiguredBranch() {
+        String deployBranch = configuration.path("variables").path("DEPLOY_BRANCH").asText();
+        assertFalse(deployBranch.isBlank());
+        assertBranchCondition(stage("image"), deployBranch);
+        assertBranchCondition(stage("deploy"), deployBranch);
     }
 
     @Test
@@ -76,11 +78,11 @@ class PipelineConfigurationTest {
         assertEquals("ci/prepare-helm-values.sh", variables.path("HELM_OVERRIDE_PREPARE_SCRIPT").asText());
     }
 
-    private void assertMainBranchCondition(JsonNode stage) {
+    private void assertBranchCondition(JsonNode stage, String deployBranch) {
         JsonNode condition = stage.path("condition");
         assertEquals("BRANCH_NAME", condition.path("variable").asText());
         assertEquals("equals", condition.path("operator").asText());
-        assertEquals("main", condition.path("value").asText());
+        assertEquals(deployBranch, condition.path("value").asText());
     }
 
     private JsonNode stage(String id) {
