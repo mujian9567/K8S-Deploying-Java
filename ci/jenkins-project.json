@@ -34,7 +34,9 @@
     "HELM_OVERRIDE_PREPARE_SCRIPT": "ci/prepare-helm-values.sh",
     "BUILD_PROXY_CONFIG_MAP": "build-proxy",
     "BUILDKITD_FLAGS": "--oci-worker-no-process-sandbox --config=/etc/buildkit/certs/buildkitd.toml",
-    "DEPLOY_BRANCH": "home-lab"
+    "DEPLOY_BRANCH": "home-lab",
+    "HARBOR_HOST": "harbor.k8s.lab",
+    "HARBOR_IP": "192.168.0.22"
   },
   "agent": {
     "type": "kubernetes",

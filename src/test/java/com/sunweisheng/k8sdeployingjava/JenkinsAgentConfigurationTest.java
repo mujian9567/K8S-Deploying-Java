@@ -21,6 +21,21 @@ class JenkinsAgentConfigurationTest {
     private final Map<String, Object> pod = loadPod(renderProjectVariables(source));
 
     @Test
+    void resolvesHarborThroughTheHomeWorkerAddress() {
+        JsonNode variables = readConfiguration().path("variables");
+        String harborHost = variables.path("HARBOR_HOST").asText();
+        String harborIp = variables.path("HARBOR_IP").asText();
+        assertFalse(harborHost.isBlank());
+        assertFalse(harborIp.isBlank());
+
+        Map<String, Object> spec = map(pod.get("spec"));
+        assertTrue(maps(spec.get("hostAliases")).stream().anyMatch(alias ->
+                harborIp.equals(alias.get("ip"))
+                        && ((List<?>) alias.get("hostnames")).contains(harborHost)
+        ));
+    }
+
+    @Test
     void runsMavenAndHelmWithNumericNonRootIdentities() {
         Map<String, Object> podSecurity = map(map(pod.get("spec")).get("securityContext"));
         assertEquals(Boolean.TRUE, podSecurity.get("runAsNonRoot"));

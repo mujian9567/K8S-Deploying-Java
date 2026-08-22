@@ -184,3 +184,7 @@ spec:
         name: buildkit-registry-config
   nodeSelector:
     kubernetes.io/hostname: home-k8s-gpu
+  hostAliases:
+    - ip: ${HARBOR_IP}
+      hostnames:
+        - ${HARBOR_HOST}
