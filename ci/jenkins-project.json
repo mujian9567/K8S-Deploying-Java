@@ -12,12 +12,12 @@
     "JNLP_WORKING_DIR": "/home/jenkins/agent",
     "BUILDKIT_IMAGE": "docker.io/moby/buildkit:v0.32.2-rootless@sha256:504731e577c20559c00f968f33219f30115e70be29ab96728d1d06e963fc494b",
     "HELM_IMAGE": "docker.io/alpine/k8s:1.36.2@sha256:44ef4942e171939b9c665a4a84beb80e2dcdb9a24330d4651cfdfd2e9deecc47",
-    "IMAGE_REPOSITORY": "ghcr.io/sunweisheng/spring-app",
-    "BUILDKIT_CACHE_REF": "${IMAGE_REPOSITORY}:buildcache",
+    "IMAGE_REPOSITORY": "harbor.k8s.lab:30443/homebuild/spring-app",
+    "BUILDKIT_CACHE_REF": "harbor.k8s.lab:30443/homecache/spring-app:buildcache",
     "HELM_RELEASE": "spring-app",
     "HELM_CHART": "deploy/charts/spring-app",
     "KUBE_NAMESPACE": "spring-app",
-    "BUILDKIT_REGISTRY_SECRET_NAME": "ghcr-push-config",
+    "BUILDKIT_REGISTRY_SECRET_NAME": "harbor-push-config",
     "DEPLOY_SERVICE_ACCOUNT": "jenkins-deployer",
     "POD_RUN_AS_USER": 1000,
     "POD_RUN_AS_GROUP": 1000,
@@ -32,7 +32,8 @@
     "HELM_OVERRIDE_SOURCE_FILE": "${HELM_OVERRIDE_MOUNT_PATH}/values.yaml",
     "HELM_OVERRIDE_VALUES_FILE": ".jenkins-json-build/deploy-overrides-values.yaml",
     "HELM_OVERRIDE_PREPARE_SCRIPT": "ci/prepare-helm-values.sh",
-    "BUILD_PROXY_CONFIG_MAP": "build-proxy"
+    "BUILD_PROXY_CONFIG_MAP": "build-proxy",
+    "BUILDKITD_FLAGS": "--oci-worker-no-process-sandbox --config=/etc/buildkit/certs/buildkitd.toml"
   },
   "agent": {
     "type": "kubernetes",
@@ -45,7 +46,7 @@
       "condition": {
         "variable": "BRANCH_NAME",
         "operator": "equals",
-        "value": "main"
+        "value": "home-lab"
       }
     },
     {
@@ -53,7 +54,7 @@
       "condition": {
         "variable": "BRANCH_NAME",
         "operator": "equals",
-        "value": "main"
+        "value": "home-lab"
       },
       "steps": [
         {
@@ -65,7 +66,9 @@
           "action": "lint",
           "executable": "${HELM_EXECUTABLE}",
           "chart": "${HELM_CHART}",
-          "valuesFiles": ["${HELM_OVERRIDE_VALUES_FILE}"],
+          "valuesFiles": [
+            "${HELM_OVERRIDE_VALUES_FILE}"
+          ],
           "setValues": {
             "image.repository": "${IMAGE_REPOSITORY}",
             "image.digest": "${IMAGE_DIGEST}"
@@ -78,7 +81,9 @@
           "release": "${HELM_RELEASE}",
           "chart": "${HELM_CHART}",
           "namespace": "${KUBE_NAMESPACE}",
-          "valuesFiles": ["${HELM_OVERRIDE_VALUES_FILE}"],
+          "valuesFiles": [
+            "${HELM_OVERRIDE_VALUES_FILE}"
+          ],
           "setValues": {
             "image.repository": "${IMAGE_REPOSITORY}",
             "image.digest": "${IMAGE_DIGEST}"
@@ -95,7 +100,9 @@
           "wait": true,
           "timeout": "10m",
           "rollbackOnFailure": true,
-          "valuesFiles": ["${HELM_OVERRIDE_VALUES_FILE}"],
+          "valuesFiles": [
+            "${HELM_OVERRIDE_VALUES_FILE}"
+          ],
           "setValues": {
             "image.repository": "${IMAGE_REPOSITORY}",
             "image.digest": "${IMAGE_DIGEST}"

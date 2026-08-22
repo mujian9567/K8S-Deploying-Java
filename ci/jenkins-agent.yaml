@@ -20,9 +20,6 @@ spec:
       image: ${JNLP_IMAGE}
       imagePullPolicy: IfNotPresent
       workingDir: ${JNLP_WORKING_DIR}
-      envFrom:
-        - configMapRef:
-            name: ${BUILD_PROXY_CONFIG_MAP}
       securityContext:
         runAsNonRoot: true
         runAsUser: ${POD_RUN_AS_USER}
@@ -31,7 +28,6 @@ spec:
         capabilities:
           drop:
             - ALL
-
     - name: maven
       image: ${MAVEN_IMAGE}
       imagePullPolicy: IfNotPresent
@@ -65,7 +61,6 @@ spec:
           mountPath: ${MAVEN_USER_HOME}
         - name: maven-cache
           mountPath: ${MAVEN_REPOSITORY}
-
     - name: buildkit
       image: ${BUILDKIT_IMAGE}
       imagePullPolicy: IfNotPresent
@@ -80,21 +75,8 @@ spec:
             ${BUILDKITD_FLAGS} --root ${BUILDKIT_STATE_DIR}
         - name: DOCKER_CONFIG
           value: ${BUILDKIT_DOCKER_CONFIG}
-        - name: HTTP_PROXY
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: HTTP_PROXY
-        - name: HTTPS_PROXY
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: HTTPS_PROXY
-        - name: NO_PROXY
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: NO_PROXY
+        - name: SSL_CERT_FILE
+          value: /etc/buildkit/certs/ca-certificates.crt
       securityContext:
         runAsNonRoot: true
         runAsUser: ${BUILDKIT_RUN_AS_USER}
@@ -123,7 +105,9 @@ spec:
           readOnly: true
         - name: buildkit-state
           mountPath: ${BUILDKIT_STATE_DIR}
-
+        - name: buildkit-registry-config
+          mountPath: /etc/buildkit/certs
+          readOnly: true
     - name: helm
       image: ${HELM_IMAGE}
       imagePullPolicy: IfNotPresent
@@ -159,7 +143,6 @@ spec:
         - name: deploy-api
           mountPath: /var/run/secrets/kubernetes.io/serviceaccount
           readOnly: true
-
   volumes:
     - name: maven-home
       emptyDir: {}
@@ -196,3 +179,8 @@ spec:
                 - path: namespace
                   fieldRef:
                     fieldPath: metadata.namespace
+    - name: buildkit-registry-config
+      configMap:
+        name: buildkit-registry-config
+  nodeSelector:
+    kubernetes.io/hostname: home-k8s-gpu
