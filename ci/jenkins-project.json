@@ -8,7 +8,7 @@
     "MAVEN_EXECUTABLE": "mvn",
     "ENABLE_SONAR": false,
     "BUILD_ARTIFACTS": "target/app.jar",
-    "JNLP_IMAGE": "docker.io/jenkins/inbound-agent:jdk25@sha256:a95513bf791abd2279535ed78bcf5695cd3d910fab0edeeda3d049cccbe2a4ac",
+    "JNLP_IMAGE": "docker.1panel.live/jenkins/inbound-agent:jdk25@sha256:a95513bf791abd2279535ed78bcf5695cd3d910fab0edeeda3d049cccbe2a4ac",
     "JNLP_WORKING_DIR": "/home/jenkins/agent",
     "BUILDKIT_IMAGE": "docker.io/moby/buildkit:v0.32.2-rootless@sha256:504731e577c20559c00f968f33219f30115e70be29ab96728d1d06e963fc494b",
     "HELM_IMAGE": "docker.io/alpine/k8s:1.36.2@sha256:44ef4942e171939b9c665a4a84beb80e2dcdb9a24330d4651cfdfd2e9deecc47",
