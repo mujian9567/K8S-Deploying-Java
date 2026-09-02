@@ -81,6 +81,18 @@ spec:
             -Dhttps.proxyHost=${BUILD_PROXY_HOST}
             -Dhttps.proxyPort=${BUILD_PROXY_PORT}
             -Dhttp.nonProxyHosts=${MAVEN_NON_PROXY_HOSTS}
+        - name: MAVEN_ARGS
+          value: -s ci/maven-settings.xml
+        - name: MAVEN_PROXY_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: ${BUILD_PROXY_CONFIG_MAP}
+              key: MAVEN_PROXY_HOST
+        - name: MAVEN_PROXY_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: ${BUILD_PROXY_CONFIG_MAP}
+              key: MAVEN_PROXY_PORT
         - name: HTTP_PROXY
           valueFrom:
             configMapKeyRef:
