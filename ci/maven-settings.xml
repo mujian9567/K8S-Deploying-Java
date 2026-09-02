@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+  <proxies>
+    <proxy>
+      <id>windows-multipass-lab</id>
+      <active>true</active>
+      <protocol>http</protocol>
+      <host>${env.MAVEN_PROXY_HOST}</host>
+      <port>${env.MAVEN_PROXY_PORT}</port>
+      <nonProxyHosts>localhost|127.*|*.svc|*.svc.cluster.local|*.k8s.lab|10.*|172.30.240.*</nonProxyHosts>
+    </proxy>
+  </proxies>
+</settings>
