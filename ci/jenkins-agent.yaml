@@ -20,6 +20,9 @@ spec:
       image: ${JNLP_IMAGE}
       imagePullPolicy: IfNotPresent
       workingDir: ${JNLP_WORKING_DIR}
+      envFrom:
+        - configMapRef:
+            name: ${BUILD_PROXY_CONFIG_MAP}
       env:
         - name: HTTP_PROXY
           valueFrom:
@@ -72,57 +75,9 @@ spec:
         - name: MAVEN_CONFIG
           value: ${MAVEN_CONFIG}
         - name: MAVEN_OPTS
-          value: >-
-            -Duser.home=${MAVEN_USER_HOME}
-            -Dmaven.repo.local=${MAVEN_REPOSITORY}
-            -XX:MaxRAMPercentage=75.0
-            -Dhttp.proxyHost=${BUILD_PROXY_HOST}
-            -Dhttp.proxyPort=${BUILD_PROXY_PORT}
-            -Dhttps.proxyHost=${BUILD_PROXY_HOST}
-            -Dhttps.proxyPort=${BUILD_PROXY_PORT}
-            -Dhttp.nonProxyHosts=${MAVEN_NON_PROXY_HOSTS}
+          value: -Duser.home=${MAVEN_USER_HOME} -Dmaven.repo.local=${MAVEN_REPOSITORY} -XX:MaxRAMPercentage=75.0
         - name: MAVEN_ARGS
           value: -s ci/maven-settings.xml
-        - name: MAVEN_PROXY_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: MAVEN_PROXY_HOST
-        - name: MAVEN_PROXY_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: MAVEN_PROXY_PORT
-        - name: HTTP_PROXY
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: HTTP_PROXY
-        - name: HTTPS_PROXY
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: HTTPS_PROXY
-        - name: NO_PROXY
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: NO_PROXY
-        - name: http_proxy
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: HTTP_PROXY
-        - name: https_proxy
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: HTTPS_PROXY
-        - name: no_proxy
-          valueFrom:
-            configMapKeyRef:
-              name: ${BUILD_PROXY_CONFIG_MAP}
-              key: NO_PROXY
       resources:
         requests:
           cpu: "${MAVEN_CPU_REQUEST}"
