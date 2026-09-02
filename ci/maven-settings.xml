@@ -7,8 +7,8 @@
       <id>windows-multipass-lab</id>
       <active>true</active>
       <protocol>http</protocol>
-      <host>${env.MAVEN_PROXY_HOST}</host>
-      <port>${env.MAVEN_PROXY_PORT}</port>
+      <host>172.30.240.1</host>
+      <port>7891</port>
       <nonProxyHosts>localhost|127.*|*.svc|*.svc.cluster.local|*.k8s.lab|10.*|172.30.240.*</nonProxyHosts>
     </proxy>
   </proxies>
